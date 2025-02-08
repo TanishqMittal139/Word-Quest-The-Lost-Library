@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word Quest: The Lost Library of Alexandria</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto+Mono:wght@300;500&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            zoom: 90%;
+        }
+
+        :root {
+            --primary: #00ff9d;
+            --secondary: #00a3ff;
+            --accent: #ff006a;
+            --background: #0a0a1a;
+            --text: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: var(--background);
+            font-family: 'Orbitron', sans-serif;
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .level-1 {
+            background: radial-gradient(circle at center, #001144, #000000);
+        }
+
+        .level-2 {
+            background: radial-gradient(circle at center, #440022, #000000);
+        }
+
+        .level-3 {
+            background: radial-gradient(circle at center, #224400, #000000);
+        }
+
+        .level-4 {
+            background: radial-gradient(circle at center, #442200, #000000);
+        }
+
+        .level-5 {
+            background: radial-gradient(circle at center, #004422, #000000);
+        }
+
+        header {
+            position: fixed;
+            background: linear-gradient(45deg, #000428, #004e92);
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 0 20px rgba(0, 78, 146, 0.4);
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            top: 0%;
+        }
+
+        footer {
+            position: fixed;
+            background: linear-gradient(45deg, #000428, #004e92);
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 0 20px rgba(0, 78, 146, 0.4);
+            bottom: 0%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+        }
+
+        .game-description {
+            padding: 2rem;
+            max-width: 1200px;
+            height: 290px;
+            margin: 2rem auto;
+            line-height: 1.6;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+            border: 2px solid var(--primary);
+            backdrop-filter: blur(10px);
+            font-size: 22px;
+            text-align: center;
+        }
+
+        #gameContainer {
+            flex: 1;
+            position: relative;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            perspective: 1000px;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+            border: 3px solid var(--primary);
+            border-radius: 15px;
+            box-shadow: 0 0 30px rgba(0, 255, 157, 0.3);
+        }
+
+        .hud {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 1rem 2rem;
+            border-radius: 15px;
+            border: 1px solid var(--primary);
+            backdrop-filter: blur(5px);
+            z-index: 2;
+            font-family: 'Roboto Mono', monospace;
+            box-shadow: 0 0 15px rgba(0, 255, 157, 0.2);
+        }
+
+        #wordBank {
+            top: 750px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.8em;
+            letter-spacing: 5px;
+            text-shadow: 0 0 10px var(--primary);
+        }
+
+        #scoreBoard {
+            width: 800px;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 30px;
+            font-size: 1.3em;
+            text-align: center;
+        }
+
+        .menu {
+            position: fixed;
+            top: 750px;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(145deg, #000428, #004e92);
+            padding: 3rem;
+            border-radius: 20px;
+            text-align: center;
+            animation: hologram 2s infinite;
+            border: 2px solid var(--primary);
+        }
+
+        @keyframes hologram {
+            0% {
+                opacity: 0.95;
+                filter: hue-rotate(0deg);
+            }
+
+            50% {
+                opacity: 1;
+                filter: hue-rotate(20deg);
+            }
+
+            100% {
+                opacity: 0.95;
+                filter: hue-rotate(0deg);
+            }
+        }
+
+        button {
+            background: linear-gradient(45deg, #00ff9d, #00a3ff);
+            color: black;
+            border: none;
+            padding: 1.5rem 3rem;
+            margin: 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Orbitron', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            box-shadow: 0 0 15px rgba(0, 255, 157, 0.3);
+        }
+
+        button:hover {
+            transform: scale(1.1) rotate(2deg);
+            box-shadow: 0 0 25px rgba(0, 255, 157, 0.5);
+        }
+
+        .dialogue {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.9);
+            padding: 1.5rem;
+            border-radius: 15px;
+            border: 1px solid var(--secondary);
+            max-width: 600px;
+            text-align: center;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translate(-50%, -5px);
+            }
+
+            50% {
+                transform: translate(-50%, 5px);
+            }
+
+            100% {
+                transform: translate(-50%, -5px);
+            }
+        }
+
+        .particle {
+            position: absolute;
+            pointer-events: none;
+            background: var(--primary);
+            border-radius: 50%;
+        }
+    </style>
+</head>
+
+<body class="level-1">
+    <header>
+        <h1>WORD QUEST: THE LOST LIBRARY OF ALEXANDRIA</h1>
+        <p>Restore Ancient Knowledge to Save Humanity's Future</p>
+    </header>
+
+    <div class="game-description" style="transform: translateY(120px);">
+        <p>In the year 2142, humanity's last hope lies in reconstructing the lost knowledge of the ancient Library of
+            Alexandria. As members of the Galactic Library Corpse, across dimensions to gather
+            letter fragments and reconstruct critical knowledge before time runs out!</p>
+            <div class="hud" id="scoreBoard">
+                <div class="player-score" style="color: #FF4444">Agent Red: 0</div>
+                <div class="player-score" style="color: #4444FF">Agent Blue: 0</div>
+                <div class="player-score" style="color: #FF9900">Agent Gold: 0</div>
+            </div>        
+    </div>
+
+    <div id="gameContainer" style="transform: translateY(120px);">
+        <canvas id="gameCanvas"></canvas>
+        <div class="hud" id="levelDisplay" style="margin: 2rem auto; right: 0px;">Chronal Phase: 1</div>
+        <div class="hud" id="wordBank" style="margin: 2rem auto;"></div>
+        <div class="hud" id="timerDisplay" style="margin: 2rem auto;">Galactic Stability: 30s</div>
+        <div id="dialogue" class="dialogue" style="display: none;"></div>
+    </div>
+
+    <div id="mainMenu" class="menu">
+        <h2>GALACTIC LIBRARY CORPS</h2>
+        <button onclick="startGame()">Initiate Sequence</button>
+        <button onclick="showInstructions()">Briefing</button>
+    </div>
+
+    <footer>
+        <p>&copy; 2142 Galactic Library Corps | All knowledge must be preserved</p>
+    </footer>
+
+    <script>
+        const WORD_LISTS = {
+            1: ['BOOK', 'PAGE', 'READ','WORD'],
+            2: ['LIBRARY', 'KNOWLEDGE', 'HISTORY', 'MYSTERY', 'ANCIENT'],
+            3: ['LITERATURE', 'MANUSCRIPT', 'ARCHIVE', 'SCROLL', 'CHAPTER'],
+            4: ['ENCYCLOPEDIA', 'PAPERBACK', 'EDUCATION', 'REFERENCE', 'DISCOVERY'],
+            5: ['EXPLORATION', 'THEORETICAL', 'PHILOSOPHY', 'INTELLECTUAL', 'PROFESSIONAL']
+        };
+
+        const game = {
+            timeRemaining: 30,
+            gameActive: false,
+            players: {
+                p1: { x: 100, y: 300, color: '#FF4444', radius: 15, score: 0, speed: 8 },
+                p2: { x: 700, y: 300, color: '#4444FF', radius: 15, score: 0, speed: 8 },
+                p3: { x: 400, y: 500, color: '#FF9900', radius: 15, score: 0, speed: 8 }
+            },
+            letters: [],
+            currentWord: '',
+            collectedLetters: [],
+            level: 1,
+            wordsCompleted: 0
+        };
+
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        let canvasAspectRatio = 16 / 9;
+
+        function resizeCanvas() {
+            const maxWidth = window.innerWidth * 0.9;
+            const maxHeight = window.innerHeight * 0.6;
+
+            let canvasWidth = maxWidth;
+            let canvasHeight = canvasWidth / canvasAspectRatio;
+
+            if (canvasHeight > maxHeight) {
+                canvasHeight = maxHeight;
+                canvasWidth = canvasHeight * canvasAspectRatio;
+            }
+
+            canvas.width = canvasWidth;
+            canvas.height = canvasHeight;
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        function startGame() {
+            document.getElementById('mainMenu').style.display = 'none';
+            game.level = 1;
+            game.wordsCompleted = 0;
+            game.players.p1.score = 0;
+            game.players.p2.score = 0;
+            game.players.p3.score = 0;
+            game.timeRemaining = 30;
+            generateWord();
+            gameActive();
+        }
+
+        function generateWord() {
+            const levelWords = WORD_LISTS[Math.min(game.level, 5)];
+            let newWord;
+            do {
+                newWord = levelWords[Math.floor(Math.random() * levelWords.length)];
+            } while (newWord === game.currentWord); // Ensure a different word
+
+            game.currentWord = newWord;
+            game.collectedLetters = [];
+            generateLetters();
+            updateWordBank();
+            resetTimer();
+        }
+
+ function generateLetters() {
+    game.letters = [];
+    const positions = Array.from({ length: 12 }, (_, i) => [
+        Math.random() * (canvas.width - 100) + 50,
+        Math.random() * (canvas.height - 100) + 50
+    ]);
+
+    const usedChars = new Set(); // Keep track of USED CHARACTERS
+    const usedPositions = new Set(); // Keep track of USED POSITIONS
+
+    game.currentWord.split('').forEach((char, i) => {
+        let position;
+        do {
+            position = positions[i];
+        } while (usedPositions.has(position.toString())); // Ensure unique POSITIONS
+
+        game.letters.push({
+            x: position[0],
+            y: position[1],
+            char: char.toUpperCase(),
+            active: true,
+            isTarget: true
+        });
+        usedChars.add(char.toUpperCase()); // Add the CHARACTER to the used set
+        usedPositions.add(position.toString()); // Add the POSITION to the used set
+    });
+
+    const randomChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    for (let i = game.currentWord.length; i < 12; i++) {
+        let char;
+        let position;
+        do {
+            char = randomChars[Math.floor(Math.random() * randomChars.length)];
+            position = positions[i];
+        } while (usedChars.has(char) || usedPositions.has(position.toString())); // Ensure unique CHARACTERS and POSITIONS
+
+        game.letters.push({
+            x: position[0],
+            y: position[1],
+            char: char,
+            active: true,
+            isTarget: false
+        });
+        usedChars.add(char); // Add the CHARACTER to the used set
+        usedPositions.add(position.toString()); // Add the POSITION to the used set
+    }
+}
+
+        function resetTimer() {
+            game.timeRemaining = 30 - game.level * 5; // Timer shortens with each level
+            document.getElementById('timerDisplay').textContent = `Galactic Stability: ${game.timeRemaining}s`;
+            clearInterval(game.timerInterval);
+            game.timerInterval = setInterval(updateTimer, 1000);
+        }
+
+        function updateTimer() {
+            game.timeRemaining--;
+            document.getElementById('timerDisplay').textContent = `Galactic Stability: ${game.timeRemaining}s`;
+
+            if (game.timeRemaining <= 0) {
+                clearInterval(game.timerInterval);
+                alert('Time’s up! Returning to main menu...');
+                document.getElementById('mainMenu').style.display = 'block';
+            }
+        }
+
+        // Updated movement and collision logic
+        const keys = {
+            p1: { up: false, down: false, left: false, right: false },
+            p2: { up: false, down: false, left: false, right: false },
+            p3: { up: false, down: false, left: false, right: false }
+        };
+
+        window.addEventListener('keydown', (e) => {
+            const key = e.key.toLowerCase();
+            if (key === 'w') keys.p1.up = true;
+            if (key === 's') keys.p1.down = true;
+            if (key === 'a') keys.p1.left = true;
+            if (key === 'd') keys.p1.right = true;
+
+if (e.key === 'ArrowUp') keys.p2.up = true;
+if (e.key === 'ArrowDown') keys.p2.down = true;
+if (e.key === 'ArrowLeft') keys.p2.left = true;
+if (e.key === 'ArrowRight') keys.p2.right = true;
+
+if (e.key === 'i') keys.p3.up = true;
+if (e.key === 'k') keys.p3.down = true;
+if (e.key === 'j') keys.p3.left = true;
+if (e.key === 'l') keys.p3.right = true;
+});
+
+window.addEventListener('keyup', (e) => {
+const key = e.key.toLowerCase();
+if (key === 'w') keys.p1.up = false;
+if (key === 's') keys.p1.down = false;
+if (key === 'a') keys.p1.left = false;
+if (key === 'd') keys.p1.right = false;
+
+if (e.key === 'ArrowUp') keys.p2.up = false;
+if (e.key === 'ArrowDown') keys.p2.down = false;
+if (e.key === 'ArrowLeft') keys.p2.left = false;
+if (e.key === 'ArrowRight') keys.p2.right = false;
+
+if (e.key === 'i') keys.p3.up = false;
+if (e.key === 'k') keys.p3.down = false;
+if (e.key === 'j') keys.p3.left = false;
+if (e.key === 'l') keys.p3.right = false;
+});
+
+function updatePlayers() {
+// Player 1 movement
+if (keys.p1.up) game.players.p1.y -= game.players.p1.speed;
+if (keys.p1.down) game.players.p1.y += game.players.p1.speed;
+if (keys.p1.left) game.players.p1.x -= game.players.p1.speed;
+if (keys.p1.right) game.players.p1.x += game.players.p1.speed;
+
+// Player 2 movement
+if (keys.p2.up) game.players.p2.y -= game.players.p2.speed;
+if (keys.p2.down) game.players.p2.y += game.players.p2.speed;
+if (keys.p2.left) game.players.p2.x -= game.players.p2.speed;
+if (keys.p2.right) game.players.p2.x += game.players.p2.speed;
+
+// Player 3 movement
+if (keys.p3.up) game.players.p3.y -= game.players.p3.speed;
+if (keys.p3.down) game.players.p3.y += game.players.p3.speed;
+if (keys.p3.left) game.players.p3.x -= game.players.p3.speed;
+if (keys.p3.right) game.players.p3.x += game.players.p3.speed;
+
+// Boundary checks
+['p1', 'p2', 'p3'].forEach(p => {
+game.players[p].x = Math.max(20, Math.min(canvas.width - 20, game.players[p].x));
+game.players[p].y = Math.max(20, Math.min(canvas.height - 20, game.players[p].y));
+});
+}
+
+function checkCollisions() {
+game.letters.forEach((letter) => {
+if (!letter.active) return;
+
+['p1', 'p2', 'p3'].forEach(player => {
+const p = game.players[player];
+const dx = p.x - letter.x;
+const dy = p.y - letter.y;
+const distance = Math.sqrt(dx * dx + dy * dy);
+
+if (distance < 30) {
+letter.active = false;
+
+if (letter.isTarget) {
+game.collectedLetters.push(letter.char);
+game.players[player].score += 10 * game.level;
+} else {
+game.players[player].score = Math.max(0, game.players[player].score - 5);
+}
+
+checkWordCompletion();
+}
+});
+});
+}
+
+function checkWordCompletion() {
+const required = game.currentWord.split('').sort().join('');
+const collected = [...game.collectedLetters].sort().join('');
+
+if (collected === required) { // Strict comparison for exact match
+game.wordsCompleted++;
+if (game.wordsCompleted >= 3) {
+game.level++;
+game.wordsCompleted = 0;
+document.getElementById('levelDisplay').textContent = `Level: ${game.level}`;
+}
+generateWord(); // Immediately generate the next word
+}
+updateWordBank();
+}
+
+function updateWordBank() {
+const displayWord = game.currentWord.split('').map(l =>
+game.collectedLetters.includes(l) ? `<span style="color: #4CAF50">${l}</span>` : l
+).join(' ');
+document.getElementById('wordBank').innerHTML = displayWord;
+}
+
+function draw() {
+ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+// Draw players
+Object.values(game.players).forEach(p => {
+ctx.beginPath();
+ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+ctx.fillStyle = p.color;
+ctx.fill();
+});
+
+// Draw letters
+game.letters.forEach(letter => {
+if (letter.active) {
+ctx.fillStyle = '#fff';
+ctx.font = '30px Arial';
+ctx.fillText(letter.char, letter.x - 10, letter.y + 10);
+}
+});
+}
+
+function gameLoop() {
+updatePlayers();
+checkCollisions();
+updateDisplays();
+draw();
+requestAnimationFrame(gameLoop);
+}
+
+        function updateDisplays() {
+            document.querySelector('#scoreBoard div:nth-child(1)').textContent =
+                `Agent Red: ${game.players.p1.score}`; // Changed to Agent Red
+            document.querySelector('#scoreBoard div:nth-child(2)').textContent =
+                `Agent Blue: ${game.players.p2.score}`; // Changed to Agent Blue
+            document.querySelector('#scoreBoard div:nth-child(3)').textContent =
+                `Agent Gold: ${game.players.p3.score}`; // Changed to Agent Gold
+        }
+
+
+function showInstructions() {
+alert("How to Play:\n\nPlayer 1: Use W-A-S-D to move\nPlayer 2: Use Arrow keys to move\nPlayer 3: Use I-J-K-L to move\n\nThe goal is to collect letters to form words as fast as possible! If you collect the wrong letter, you are going to loose points");
+}
+
+function gameActive() {
+game.gameActive = true;
+document.getElementById('mainMenu').style.display = 'none';
+gameLoop();
+}
+// Particle effect
+function createParticles(x, y, color) {
+    for (let i = 0; i < 10; i++) {
+        const particle = document.createElement('div');
+        particle.classList.add('particle');
+        particle.style.left = x + 'px';
+        particle.style.top = y + 'px';
+        particle.style.backgroundColor = color;
+        const size = Math.random() * 8 + 2;
+        particle.style.width = size + 'px';
+        particle.style.height = size + 'px';
+        const dx = (Math.random() - 0.5) * 5;
+        const dy = (Math.random() - 0.5) * 5;
+        particle.dx = dx;
+        particle.dy = dy;
+        document.body.appendChild(particle);
+
+        // Animate particles
+        const animate = () => {
+            particle.x += particle.dx;
+            particle.y += particle.dy;
+            particle.style.left = particle.x + 'px';
+            particle.style.top = particle.y + 'px';
+            particle.style.opacity = parseFloat(particle.style.opacity) - 0.02;
+            if (particle.style.opacity <= 0) {
+                particle.remove();
+            } else {
+                requestAnimationFrame(animate);
+            }
+        };
+        animate();
+    }
+}
+
+
+// Updated checkCollisions function
+function checkCollisions() {
+    game.letters.forEach((letter) => {
+        if (!letter.active) return;
+
+        ['p1', 'p2', 'p3'].forEach(player => {
+            const p = game.players[player];
+            const dx = p.x - letter.x;
+            const dy = p.y - letter.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            if (distance < 30) {
+                letter.active = false;
+                createParticles(letter.x, letter.y, p.color); // Create particles on collision
+
+                if (letter.isTarget) {
+                    game.collectedLetters.push(letter.char);
+                    game.players[player].score += 10 * game.level;
+                } else {
+                    game.players[player].score = Math.max(0, game.players[player].score - 5);
+                }
+
+                checkWordCompletion();
+            }
+        });
+    });
+}
+
+    </script>
+</body>
+
+</html>
